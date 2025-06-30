@@ -1,22 +1,30 @@
 import discord
-from discord.ext import commands
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # Load environment variables from .env file
+
+
+load_dotenv()
+
+
 intents = discord.Intents.default()
-intents.message_content = True # Enable message content intent
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = discord.Bot(intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name} - {bot.user.id}')
+    print(f"Logged in as {bot.user}")
+    await bot.sync_commands()
+    
 
-@bot.command()
 async def hello(ctx):
-    await ctx.send("Hello, world!")
-@bot.command()
-async def ping(ctx):
-    await ctx.send("Pong!")
+    await ctx.respond("Whats up, Rokyuu!!!")
+    
+@bot.slash_command(name="goodbye", description="Say goodbye")
+async def bye(ctx):
+    await ctx.respond("BYE, Rokyuu!")
+    
+
+bot.load_extension("ping_cog")
+bot.load_extension("who_am_i_cog")       
 
 bot.run(os.getenv('DISCORD_TOKEN'))
