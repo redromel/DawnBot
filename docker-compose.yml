@@ -1,0 +1,10 @@
+
+services:
+
+  dawnbot:
+    build: .               
+    container_name: dawnbot
+    working_dir: /bot
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
