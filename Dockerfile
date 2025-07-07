@@ -11,8 +11,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
-COPY . .
-
+COPY src/ ./src/
 
 # Command to run your app (update as needed)
-CMD ["python", "main.py"]
+CMD ["python", "src/main.py"]
