@@ -1,13 +1,29 @@
 
 services:
 
+  postgres:
+    image: postgres:16
+    container_name: dawnbot_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:5432"
   dawnbot:
 
     build: .               
     container_name: dawnbot
     working_dir: /bot
+    restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
-    restart: unless-stopped
     env_file:
       - .env
+    
+volumes:
+  postgres_data:
+    driver: local

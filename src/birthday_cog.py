@@ -1,52 +1,53 @@
 from discord.ext import commands
 import datetime
-import sqlite3
+from db import get_db_connection
 import discord
+from discord import Option  # type: ignore
+import queries
 
 
 class BirthdayCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        with get_db_connection() as conn:
+            self.conn = conn
+            self.cursor = conn.cursor()
+            self.cursor.execute(queries.CREATE_BIRTHDAYS_TABLE)
+            self.conn.commit()
 
-        self.conn = sqlite3.connect('birthdays.db')
-        self.cursor = self.conn.cursor()
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS birthdays (
-                user_id INTEGER PRIMARY KEY,
-                month INTEGER NOT NULL,
-                day INTEGER NOT NULL
-            )
-        ''')
-        self.conn.commit()
-
-    @commands.slash_command(name="setbirthday", description="Set your birthday.")
-    async def birthday(self, ctx, month: int, day: int):
-
+    @commands.slash_command(name="setbirthday",
+                            description="Set your birthday.")
+    async def birthday(self,
+                       ctx,
+                       # type: ignore
+                       month: Option(int, "Month Number (1-12)"), # type: ignore
+                       day: Option(int, "Day Number (1-31)")):  # type: ignore
+        # print(ctx.author.id)
         if not self.validate_bday(month, day):
             await ctx.respond("Invalid date. Please enter a valid Date.")
             return
 
-        self.cursor.execute('''
-            INSERT OR REPLACE INTO birthdays (user_id, month, day)
-            VALUES (?, ?, ?)
-        ''', (ctx.author.id, month, day))
-        self.conn.commit()
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(queries.INSERT_BIRTHDAY,
+                           (ctx.author.id, month, day))
+            conn.commit()
 
         month_name = self.month_convert(month)
         await ctx.respond(f"Your birthday has been set to {month_name} {day}.")
 
     @commands.slash_command(name="getbirthday", description="Get Member's birthday.")
     async def get_birthday(self, ctx, member: discord.Member):
-        user_id = member.id if member else ctx.author.id
-
-        self.cursor.execute('''
-            SELECT month, day FROM birthdays WHERE user_id = ?
-        ''', (user_id,))
-
-        result = self.cursor.fetchone()
+        user_id = member.id
+        # print(user_id)
+        with get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(queries.SELECT_BIRTHDAY, (user_id,))
+                result = cursor.fetchone()
 
         if result:
-            month, day = result
+
+            month, day = result['month'], result['day']
             month_name = self.month_convert(month)
 
             if user_id == ctx.author.id:
@@ -57,7 +58,7 @@ class BirthdayCog(commands.Cog):
             if user_id == ctx.author.id:
                 await ctx.respond("You have not set your birthday yet.")
                 return
-            await ctx.respond(f"{member} have not set your birthday yet.")
+            await ctx.respond(f"{member} has not set their birthday yet.")
 
     def validate_bday(self, month: int, day: int):
         try:
