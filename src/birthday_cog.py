@@ -4,6 +4,7 @@ from db import get_db_connection
 import discord
 from discord import Option  # type: ignore
 import queries
+import datetime
 
 
 class BirthdayCog(commands.Cog):
@@ -19,7 +20,6 @@ class BirthdayCog(commands.Cog):
                             description="Set your birthday.")
     async def birthday(self,
                        ctx,
-                       # type: ignore
                        month: Option(int, "Month Number (1-12)"), # type: ignore
                        day: Option(int, "Day Number (1-31)")):  # type: ignore
         # print(ctx.author.id)
@@ -60,13 +60,42 @@ class BirthdayCog(commands.Cog):
                 return
             await ctx.respond(f"{member} has not set their birthday yet.")
 
+    @commands.slash_command(name="testbirthday", description="Test birthday.")
+    async def test_birthday(self, ctx):
+        now = datetime.datetime.now()
+        today = now.date()
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT user_id, month, day FROM birthdays WHERE month = %s AND day = %s", (today.month, today.day))
+            birthdays_today = cursor.fetchall()
+        if not birthdays_today:
+            await ctx.respond("No birthdays today.")
+            return
+
+        for birthday in birthdays_today:
+            # print(birthday)
+            user_id = birthday["user_id"]
+            month = birthday["month"]
+            day = birthday["day"]
+            
+            # print(f"User ID: {user_id}, Month: {month}, Day: {day}")
+            # print(f"User ID type: {type(user_id)}, Month type: {type(month)}, Day type: {type(day)}")
+            
+            user = await self.bot.fetch_user(user_id)
+            
+            if user:
+                month_name = self.month_convert(month)
+                await ctx.respond(f"Happy Birthday {user.mention}! 🎉 Your birthday is today: {month_name} {day}.")
+                
+
     def validate_bday(self, month: int, day: int):
         try:
             datetime.datetime(year=2023, month=month, day=day)
             return True
         except ValueError:
             return False
-
     def month_convert(self, month: int):
         months = {
             1: "January", 2: "February", 3: "March",
