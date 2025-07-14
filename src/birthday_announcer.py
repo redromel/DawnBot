@@ -3,6 +3,7 @@ import datetime
 from db import get_db_connection
 import zoneinfo
 import os
+import queries
 
 class BirthdayAnnouncer(commands.Cog):
     def __init__(self, bot):
@@ -20,13 +21,12 @@ class BirthdayAnnouncer(commands.Cog):
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT user_id, month, day FROM birthdays WHERE month = %s AND day = %s", (today.month, today.day))
+                queries.CHECK_BIRTHDAY, (today.month, today.day))
             birthdays_today = cursor.fetchall()
 
         for birthday in birthdays_today:
             user_id = birthday["user_id"]
-            month = birthday["month"]
-            day = birthday["day"]
+
             
             user = await self.bot.fetch_user(user_id)
             channel = self.bot.get_channel(int(os.getenv("BIRTHDY_CHANNEL_ID")))

@@ -68,7 +68,7 @@ class BirthdayCog(commands.Cog):
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT user_id, month, day FROM birthdays WHERE month = %s AND day = %s", (today.month, today.day))
+                queries.CHECK_BIRTHDAY, (today.month, today.day))
             birthdays_today = cursor.fetchall()
         if not birthdays_today:
             await ctx.respond("No birthdays today.")

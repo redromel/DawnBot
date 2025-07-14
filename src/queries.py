@@ -16,3 +16,7 @@ INSERT_BIRTHDAY = '''
 SELECT_BIRTHDAY = '''
     SELECT month, day FROM birthdays WHERE user_id = %s
 '''
+
+CHECK_BIRTHDAY = '''
+    SELECT user_id, month, day FROM birthdays WHERE month = %s AND day = %s
+'''
