@@ -79,16 +79,45 @@ class BirthdayCog(commands.Cog):
             user_id = birthday["user_id"]
             month = birthday["month"]
             day = birthday["day"]
-            
+
             # print(f"User ID: {user_id}, Month: {month}, Day: {day}")
             # print(f"User ID type: {type(user_id)}, Month type: {type(month)}, Day type: {type(day)}")
-            
+
             user = await self.bot.fetch_user(user_id)
-            
+
             if user:
                 month_name = self.month_convert(month)
                 await ctx.respond(f"Happy Birthday {user.mention}! 🎉 Your birthday is today: {month_name} {day}.")
-                
+
+    @commands.slash_command(name="serverbirthdays", description="Get birthdays for all the members of the server.")
+    async def upcomming_birthday(self, ctx):
+        now = datetime.datetime.now()
+        today = now.date()
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(queries.UPCOMING_BIRTHDAYS)
+            upcoming_birthdays = cursor.fetchall()
+        if not upcoming_birthdays:
+            await ctx.respond("No upcoming birthdays.")
+            return
+        lines = []
+        print(upcoming_birthdays)
+        for birthday in upcoming_birthdays:
+            user_id = birthday["user_id"]
+            month = birthday["month"]
+            day = birthday["day"]
+
+            member = ctx.guild.get_member(user_id)
+            if member: 
+                month_name = self.month_convert(month)
+                lines.append(f"{member.display_name} - {month_name} {day}")
+
+        if not lines:
+            await ctx.respond("No upcoming birthdays for server members.")
+        else:
+            response = "Upcoming Birthdays:\n" + "\n".join(lines)
+            await ctx.respond(response)
 
     def validate_bday(self, month: int, day: int):
         try:
@@ -96,6 +125,7 @@ class BirthdayCog(commands.Cog):
             return True
         except ValueError:
             return False
+
     def month_convert(self, month: int):
         months = {
             1: "January", 2: "February", 3: "March",

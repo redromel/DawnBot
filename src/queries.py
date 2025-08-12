@@ -20,3 +20,7 @@ SELECT_BIRTHDAY = '''
 CHECK_BIRTHDAY = '''
     SELECT user_id, month, day FROM birthdays WHERE month = %s AND day = %s
 '''
+
+UPCOMING_BIRTHDAYS = '''
+    SELECT user_id, month, day FROM birthdays
+'''
