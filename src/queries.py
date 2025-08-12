@@ -21,6 +21,14 @@ CHECK_BIRTHDAY = '''
     SELECT user_id, month, day FROM birthdays WHERE month = %s AND day = %s
 '''
 
+ALL_BIRTHDAYS = '''
+    SELECT user_id, month, day FROM birthdays
+'''
+
 UPCOMING_BIRTHDAYS = '''
     SELECT user_id, month, day FROM birthdays
+    WHERE 
+        (month = %s AND day >= %s)
+        OR
+        (month = %s)
 '''

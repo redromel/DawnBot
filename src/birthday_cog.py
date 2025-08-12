@@ -20,6 +20,7 @@ class BirthdayCog(commands.Cog):
                             description="Set your birthday.")
     async def birthday(self,
                        ctx,
+                
                        month: Option(int, "Month Number (1-12)"), # type: ignore
                        day: Option(int, "Day Number (1-31)")):  # type: ignore
         # print(ctx.author.id)
@@ -89,36 +90,71 @@ class BirthdayCog(commands.Cog):
                 month_name = self.month_convert(month)
                 await ctx.respond(f"Happy Birthday {user.mention}! 🎉 Your birthday is today: {month_name} {day}.")
 
-    @commands.slash_command(name="serverbirthdays", description="Get birthdays for all the members of the server.")
-    async def upcomming_birthday(self, ctx):
+
+
+    @commands.slash_command(name="serverbirthdays", description="Get upcoming birthdays for the server.")
+    async def server_birthdays(self, ctx):
         now = datetime.datetime.now()
         today = now.date()
+        next
 
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(queries.UPCOMING_BIRTHDAYS)
+            cursor.execute(queries.ALL_BIRTHDAYS)
             upcoming_birthdays = cursor.fetchall()
         if not upcoming_birthdays:
-            await ctx.respond("No upcoming birthdays.")
+            await ctx.respond("No one in the server has set birthdays.")
             return
         lines = []
-        print(upcoming_birthdays)
         for birthday in upcoming_birthdays:
             user_id = birthday["user_id"]
             month = birthday["month"]
             day = birthday["day"]
 
             member = ctx.guild.get_member(user_id)
-            if member: 
+            if member:
                 month_name = self.month_convert(month)
                 lines.append(f"{member.display_name} - {month_name} {day}")
 
         if not lines:
-            await ctx.respond("No upcoming birthdays for server members.")
+            await ctx.respond("No one in the server has set birthdays.")
         else:
-            response = "Upcoming Birthdays:\n" + "\n".join(lines)
+            response = "Members Birthdays:\n" + "\n".join(lines)
             await ctx.respond(response)
 
+    @commands.slash_command(name="upcomingbirthday", description="Get upcoming birthdays for the server (up to the end of the next month).")
+    async def upcoming_birthday(self, ctx):
+        now = datetime.datetime.now()
+        today = now.date()
+        next_month = (today.month % 12) + 1
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(queries.UPCOMING_BIRTHDAYS,
+                           (today.month, today.day, next_month))
+            upcoming_birthdays = cursor.fetchall()
+
+        if not upcoming_birthdays:
+            await ctx.respond("No upcoming birthdays in the server.")
+            return
+        
+        lines = []
+        for birthday in upcoming_birthdays:
+            user_id = birthday["user_id"]
+            month = birthday["month"]
+            day = birthday["day"]
+
+            member = ctx.guild.get_member(user_id)
+            if member:
+                month_name = self.month_convert(month)
+                lines.append(f"{member.display_name} - {month_name} {day}")
+
+        if not lines:
+            await ctx.respond("No upcoming birthdays in the server.")
+            return
+        response = "Upcoming Birthdays:\n" + "\n".join(lines)
+        await ctx.respond(response)
+        return
     def validate_bday(self, month: int, day: int):
         try:
             datetime.datetime(year=2023, month=month, day=day)
