@@ -15,6 +15,9 @@ class BirthdayCog(commands.Cog):
             self.cursor = conn.cursor()
             self.cursor.execute(queries.CREATE_BIRTHDAYS_TABLE)
             self.conn.commit()
+            self.cursor.execute(queries.CREATE_ANNOUNCEMENT_CHANNELS_TABLE)
+            self.conn.commit()
+
 
     @commands.slash_command(name="setbirthday",
                             description="Set your birthday.")
@@ -155,6 +158,25 @@ class BirthdayCog(commands.Cog):
         response = "Upcoming Birthdays:\n" + "\n".join(lines)
         await ctx.respond(response)
         return
+    
+    @commands.slash_command(name="deletebirthday", description="Delete your birthday.")
+    async def delete_birthday(self, ctx):
+        user_id = ctx.author.id
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(queries.DELETE_BIRTHDAY, (user_id,))
+            conn.commit()
+
+        await ctx.respond("Your birthday has been deleted successfully.")
+    
+    
+
+    
+    
+    
+    
+    
+    
     def validate_bday(self, month: int, day: int):
         try:
             datetime.datetime(year=2023, month=month, day=day)
