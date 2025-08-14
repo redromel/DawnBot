@@ -68,7 +68,7 @@ class BirthdayAnnouncer(commands.Cog):
     async def before_announce_birthday(self):
         await self.bot.wait_until_ready()
 
-    @commands.slash_command(name="setannouncement", description="Set current channel for birthday announcements.")
+    @commands.slash_command(name="setannouncement", description="Set current channel for birthday announcements. (ADMIN ONLY)")
     async def set_announcement(self, ctx):
 
         channel = ctx.channel
@@ -90,7 +90,7 @@ class BirthdayAnnouncer(commands.Cog):
 
         await ctx.respond(f"Announcement channel has been set successfully to {channel.mention} in {guild.name}.", delete_after=30)
 
-    @commands.slash_command(name="removeannouncement", description="Remove the announcement channel for birthdays.")
+    @commands.slash_command(name="removeannouncement", description="Remove the announcement channel for birthdays. (ADMIN ONLY)")
     async def remove_announcement(self, ctx):
 
         channel = ctx.channel
@@ -134,7 +134,7 @@ class BirthdayAnnouncer(commands.Cog):
         await ctx.respond("No announcement channel has been set for this server.", delete_after=30)
         return
 
-    @commands.slash_command(name="getallannouncementchannels", description="Get all announcement channels for birthdays (ADMIN ONLY).")
+    @commands.slash_command(name="getallannouncementchannels", description="Get all announcement channels for birthdays. (ADMIN ONLY)")
     async def get_all_announcement_channels(self, ctx):
 
         if not ctx.author.guild_permissions.administrator:

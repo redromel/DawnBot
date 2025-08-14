@@ -62,8 +62,14 @@ This will start the bot and a locally hosted PostgreSQL container.
 These are the main commands that aren't test commands (which will be removed someday)
 |Command|Description  |
 |--|--|
-|`/setbirthday` | Set your birthday (month, day) |
+|`/setbirthday` | Set or updates your birthday (month, day)  |
 | `/getbirthday` | Get a member's birthday |
-| `/testbirthday` | Simulate today instead of waiting 24 hours to get birthday message|
+|`/deletebirthday`|Deletes your birthday|
+|`/upcommingbirthday`|Get upcomming birthdays for the server (up to the end of next month)|
+|`/serverbirthdays`|Gets all the birthdays for the server|
+|`/setannouncement`|Sets current channel for birthday announcements (ADMIN ONLY)|
+|`/getannouncement`|Gets the current announcement channel for birthdays|
+|`/removeannouncement`|Remove the announcement channel for birthdays (ADMIN ONLY)|
+|`/getallannouncementchannels`|Get all announcement channels for birthdays (ADMIN ONLY)|
 
 ---
