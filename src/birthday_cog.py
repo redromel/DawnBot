@@ -15,8 +15,6 @@ class BirthdayCog(commands.Cog):
             self.cursor = conn.cursor()
             self.cursor.execute(queries.CREATE_BIRTHDAYS_TABLE)
             self.conn.commit()
-            self.cursor.execute(queries.CREATE_ANNOUNCEMENT_CHANNELS_TABLE)
-            self.conn.commit()
 
 
     @commands.slash_command(name="setbirthday",
@@ -64,34 +62,34 @@ class BirthdayCog(commands.Cog):
                 return
             await ctx.respond(f"{member} has not set their birthday yet.")
 
-    @commands.slash_command(name="testbirthday", description="Test birthday.")
-    async def test_birthday(self, ctx):
-        now = datetime.datetime.now()
-        today = now.date()
+    # @commands.slash_command(name="testbirthday", description="Test birthday.")
+    # async def test_birthday(self, ctx):
+        # now = datetime.datetime.now()
+        # today = now.date()
 
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                queries.CHECK_BIRTHDAY, (today.month, today.day))
-            birthdays_today = cursor.fetchall()
-        if not birthdays_today:
-            await ctx.respond("No birthdays today.")
-            return
+        # with get_db_connection() as conn:
+        #     cursor = conn.cursor()
+        #     cursor.execute(
+        #         queries.CHECK_BIRTHDAY, (today.month, today.day))
+        #     birthdays_today = cursor.fetchall()
+        # if not birthdays_today:
+        #     await ctx.respond("No birthdays today.")
+        #     return
 
-        for birthday in birthdays_today:
-            # print(birthday)
-            user_id = birthday["user_id"]
-            month = birthday["month"]
-            day = birthday["day"]
+        # for birthday in birthdays_today:
+        #     # print(birthday)
+        #     user_id = birthday["user_id"]
+        #     month = birthday["month"]
+        #     day = birthday["day"]
 
-            # print(f"User ID: {user_id}, Month: {month}, Day: {day}")
-            # print(f"User ID type: {type(user_id)}, Month type: {type(month)}, Day type: {type(day)}")
+        #     # print(f"User ID: {user_id}, Month: {month}, Day: {day}")
+        #     # print(f"User ID type: {type(user_id)}, Month type: {type(month)}, Day type: {type(day)}")
 
-            user = await self.bot.fetch_user(user_id)
+        #     user = await self.bot.fetch_user(user_id)
 
-            if user:
-                month_name = self.month_convert(month)
-                await ctx.respond(f"Happy Birthday {user.mention}! 🎉 Your birthday is today: {month_name} {day}.")
+        #     if user:
+        #         month_name = self.month_convert(month)
+        #         await ctx.respond(f"Happy Birthday {user.mention}! 🎉 Your birthday is today: {month_name} {day}.")
 
 
 

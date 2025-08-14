@@ -58,3 +58,7 @@ DELETE_ANNOUNCEMENT_CHANNEL = '''
 CHECK_ANNOUNCEMENT_CHANNEL = '''
     SELECT channel_id FROM announcement_channels WHERE guild_id = %s
 '''
+
+GET_ALL_ANNOUNCEMENT_CHANNELS = '''
+    SELECT guild_id, channel_id FROM announcement_channels
+'''
