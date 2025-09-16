@@ -1,6 +1,6 @@
+version: "3.9"
 
 services:
-
   postgres:
     image: postgres:16
     container_name: dawnbot_postgres
@@ -13,17 +13,22 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "${DB_PORT}:5432"
-  dawnbot:
 
-    build: .               
+  dawnbot:
+    build: .
     container_name: dawnbot
     working_dir: /bot
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
+      - API_BASE_URL=http://host.docker.internal:3000
     env_file:
       - .env
-    
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
     driver: local

@@ -30,6 +30,6 @@ bot.load_extension("ping_cog")
 bot.load_extension("who_am_i_cog")
 bot.load_extension("birthday_cog")
 bot.load_extension("birthday_announcer")
-
+bot.load_extension("bushi_scraper_cog")
 bot.run(os.getenv('DISCORD_TOKEN'))
 
