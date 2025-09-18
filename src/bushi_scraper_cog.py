@@ -14,10 +14,10 @@ class BushiScraperCog(commands.Cog):
         self.bot = bot
 
     @commands.slash_command(name="getendeck", description="Given a JP Decklog, It will give an EN Bushiroad Decklog")
-    async def get_en_deck(self, ctx, text: str):
+    async def get_en_deck(self, ctx, url: str, deck_name: str = None):
         # This is a long command
         await ctx.defer()
-        body = {'url': text}
+        body = {'url': url, 'deck_name': deck_name}
         response = requests.post(
             f"{API_BASE_URL}/decks/bushiDecklist", json=body)
         json_response = response.json()
