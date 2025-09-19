@@ -121,6 +121,7 @@ class BirthdayCog(commands.Cog):
                 cursor.execute(queries.UPCOMING_BIRTHDAYS,
                                (today.month, today.day, next_month))
                 upcoming_birthdays = cursor.fetchall()
+                upcoming_birthdays.sort(key=lambda b: (b['month'], b['day']))
         except Exception as e:
             await ctx.respond("Failed to retrieve upcoming birthdays due to a database error.", ephemeral=True)
             print(f"Error in upcoming_birthday: {e}")
