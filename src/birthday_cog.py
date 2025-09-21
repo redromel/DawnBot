@@ -23,6 +23,7 @@ class BirthdayCog(commands.Cog):
                             description="Set your birthday.")
     async def birthday(self,
                        ctx,
+                       # type: ignore
                        month: Option(int, "Month Number (1-12)"), # type: ignore
                        day: Option(int, "Day Number (1-31)")):  # type: ignore
         if not self.validate_bday(month, day):
@@ -87,6 +88,7 @@ class BirthdayCog(commands.Cog):
         if not upcoming_birthdays:
             await ctx.respond("No one in the server has set birthdays.", delete_after=30)
             return
+        upcoming_birthdays.sort(key=lambda b: (b['month'], b['day']))
         lines = []
         for birthday in upcoming_birthdays:
             user_id = birthday["user_id"]
@@ -121,7 +123,6 @@ class BirthdayCog(commands.Cog):
                 cursor.execute(queries.UPCOMING_BIRTHDAYS,
                                (today.month, today.day, next_month))
                 upcoming_birthdays = cursor.fetchall()
-                upcoming_birthdays.sort(key=lambda b: (b['month'], b['day']))
         except Exception as e:
             await ctx.respond("Failed to retrieve upcoming birthdays due to a database error.", ephemeral=True)
             print(f"Error in upcoming_birthday: {e}")
@@ -130,7 +131,8 @@ class BirthdayCog(commands.Cog):
         if not upcoming_birthdays:
             await ctx.respond("No upcoming birthdays in the server.", delete_after=30)
             return
-        
+        print("test")
+        upcoming_birthdays.sort(key=lambda b: (b['month'], b['day']))
         lines = []
         for birthday in upcoming_birthdays:
             user_id = birthday["user_id"]
@@ -153,7 +155,7 @@ class BirthdayCog(commands.Cog):
         response = "Upcoming Birthdays:\n" + "\n".join(lines)
         await ctx.respond(response, delete_after=30)
         return
-    
+
     @commands.slash_command(name="deletebirthday", description="Delete your birthday.")
     async def delete_birthday(self, ctx):
         user_id = ctx.author.id
