@@ -1,6 +1,6 @@
 
 from discord.ext import commands
-
+from discord import Embed
 
 import requests
 import json
@@ -37,16 +37,65 @@ class BushiScraperCog(commands.Cog):
         response = requests.post(
             f"{API_BASE_URL}/decks/simDecklist", json=body)
 
+        json_response = response.json()
+        deck = json_response["deck"]
+
         if response.status_code >= 400:
             await ctx.followup.send(
                 f'There was an error with the request: "{json_response["error"]}" ', ephemeral=True)
             return
 
-        json_response = response.json()
-        deck = json_response["deck"]
         formatted_deck = f"```{deck}```"
         await ctx.followup.send(f"Decklist for https://sveclient.vercel.app/ Created:\n{formatted_deck}")
         return
+
+    @commands.slash_command(name="comparedecks", description="Compare 2 Decks to see what cards were removed, added, or changed")
+    async def compare_decks(self, ctx, old_deck_url: str, new_deck_url: str):
+        await ctx.defer()
+        body = {'urlA': old_deck_url, 'urlB': new_deck_url}
+
+        response = requests.post(f"{API_BASE_URL}/decks/compare", json=body)
+
+        json_response = response.json()
+
+        if response.status_code >= 400:
+            await ctx.followup.send(
+                f'There was an error with the request: "{json_response["error"]}" ', ephemeral=True)
+            return
+
+        take_out, same_card, slot_in = embed_builder(json_response)
+
+        embed = Embed(
+            title="Deck Comparison",
+            color= 200
+        )
+        
+        embed.add_field(name="Keep Cards", value="\n".join(same_card), inline=False)
+        embed.add_field(name="Take Out", value="\n".join(take_out), inline=False)
+        embed.add_field(name="Slot In", value="\n".join(slot_in), inline=False)
+        embed.set_footer(text="Powered by BushiScraper")
+        
+        
+        await ctx.followup.send(embed=embed)
+        return
+
+
+def embed_builder(response):
+    
+    decks = response["details"]
+    take_out = []
+    same_card = []
+    slot_in = []
+    
+    for card in decks["sameCard"]:
+        same_card.append(f"{card['quantity']} {card['card_name']}")
+    for card in decks["removedCards"]:
+        take_out.append(f"{card['quantity']} {card['card_name']}")
+    for card in decks["addedCards"]:
+        slot_in.append(f"{card['quantity']} {card['card_name']}")        
+    
+    return take_out, same_card, slot_in
+
 
 
 def setup(bot):
